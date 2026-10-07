@@ -33,10 +33,13 @@ new_old_name_map = {
 'Boston-Gloucester Room': 'Judiths Room',
 'Visitors Center': 'Museum Shop'}
 
-output_files =[("furniture", ['oid05', 'oid06']), ("artwork", ['oid00', 'oid0013'])]
+categories_dict = {"furniture": {"oid_list":['oid05', 'oid06'], "objects":[]}, \
+                    "artwork": {"oid_list":['oid00', 'oid0013'], "objects":[]}, \
+                }
 
-for item in output_files:
-    list[item[0]] = []
+# for category_dict in categories_dict:
+#     print(f"{category_dict} {categories_dict[category_dict]["oid_list"]}")
+# exit()
 
 with open( "Collections-Inventory.csv", 'r' ) as f:
     sheet_rows = csv.DictReader(f)
@@ -46,21 +49,25 @@ with open( "Collections-Inventory.csv", 'r' ) as f:
         if new_location in new_old_name_map:
             new_location = new_old_name_map[new_location]
 
-        #only list furniture and specific artwork, e.g. busts
-        furniture_id_patterns = ['oid05', 'oid06', 'oid0014', 'oid0015']
-        for pattern in furniture_id_patterns:
-            if pattern == row_dict['ID'][:len(pattern)] and row_dict['2025 Location'] != new_location:
-                shortened_dimensions = row_dict['Dimensions'].replace('"','')[:25]
-                output_rows.append([None, row_dict['2025 Location'], row_dict['2027 Location'], \
-                    row_dict['Object_Type'], row_dict['Subject_Style'][:14], shortened_dimensions, '', row_dict['ID']])
+        for category_dict in categories_dict:
+            for pattern in categories_dict[category_dict]["oid_list"]:
+                if pattern == row_dict['ID'][:len(pattern)] and row_dict['2025 Location'] != new_location:
+                    shortened_dimensions = row_dict['Dimensions'].replace('"','')[:25]
+                    categories_dict[category_dict]["objects"].append([None, \
+                        row_dict['ID'], row_dict['Object_Type'], row_dict['Subject_Style'][:14], \
+                        row_dict['2025 Location'], row_dict['2027 Location'], \
+                        shortened_dimensions, ''])
 
-fields = ['Priority', 'Current Location', 'New Location', 'Type', 'Subject/Style', 'Dimensions (inches)', 'Comment', 'ID']
-cabinet1 = ['1', '2ndFloorWorkshop', 'Street Curb', 'Cabinet', 'Painted White', '46 x 20 x 80', 'making space for other furniture', 'None']
-cabinet2 = ['1', '2ndFloorWorkshop', 'Street Curb', 'Cabinet', 'Pine', '46 x 20 x 80', 'making space for other furniture','None']
-output_rows.sort(key=lambda x: x[2])  #sort by New location
-with open('move_list.csv', 'w', newline='') as f:
-    writer = csv.writer(f)
-    writer.writerow(fields)
-    writer.writerow(cabinet1)
-    writer.writerow(cabinet2)
-    writer.writerows(output_rows)
+categories_dict["furniture"]["objects"].append(['1', 'None', 'Cabinet', 'Painted White', '2ndFloorWorkshop', 'Street Curb', '46 x 20 x 80', 'making space for other furniture'])
+categories_dict["furniture"]["objects"].append(['1', 'None', 'Cabinet', 'Pine', '2ndFloorWorkshop', 'Street Curb', '46 x 20 x 80', 'making space for other furniture'])
+
+for category_dict in categories_dict:
+    categories_dict[category_dict]["objects"].sort(key=lambda x: x[4])  #sort by Current location
+
+fields = ['Priority', 'ID', 'Type', 'Subject/Style', 'Current Location', 'New Location',  'Dimensions (inches)', 'Comment']
+for category_dict in categories_dict:
+    filename = category_dict + ".csv"
+    with open(filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(fields)
+        writer.writerows(categories_dict[category_dict]["objects"])
