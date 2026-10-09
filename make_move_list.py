@@ -44,7 +44,7 @@ def make_move_list_all_objects():
                 new_location = new_old_name_map[new_location]
             if row_dict['2025 Location'] != new_location:
                 move_list.append([None, \
-                            row_dict['ID'], row_dict['Object_Type'], row_dict['Subject_Style'][:14], \
+                            row_dict['ID'], row_dict['Object_Type'], row_dict['Subject_Style'][:31], \
                             row_dict['2025 Location'], row_dict['2027 Location'], \
                             row_dict['Dimensions'].replace('"','')[:25], ''])
 
@@ -68,7 +68,7 @@ def make_move_list_per_category(categories_dict):
                     if pattern == row_dict['ID'][:len(pattern)] and row_dict['2025 Location'] != new_location:
                         shortened_dimensions = row_dict['Dimensions'].replace('"','')[:25]
                         categories_dict[category_dict]["objects"].append([None, \
-                            row_dict['ID'], row_dict['Object_Type'], row_dict['Subject_Style'][:14], \
+                            row_dict['ID'], row_dict['Object_Type'], row_dict['Subject_Style'][:31], \
                             row_dict['2025 Location'], row_dict['2027 Location'], \
                             shortened_dimensions, ''])
 
